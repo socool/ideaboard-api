@@ -9,29 +9,38 @@ class IdeasContainer extends Component {
         super(props)
         this.state = {
             ideas: [],
-            editingIdeaId: null
+            editingIdeaId: null,
+            notification: ''
         }
     }
       
     render() {
         return (
-          <div>
+          <div>        
             <div>
                 <button className="newIdeaButton"
                     onClick={this.addNewIdea}>
                     New Idea
                 </button>
+                <span className="notification">
+                    {this.state.notification}
+                </span>
             </div>
             {this.state.ideas.map((idea) => {
                 if(this.state.editingIdeaId === idea.id){
-                    return (<IdeaForm idea={idea} key={idea.id} updateIdea={this.updateIdea}/>)
+                    return (<IdeaForm idea={idea} key={idea.id} 
+                        updateIdea={this.updateIdea}
+                        resetNotification={this.resetNotification}/>)
                 }else{
                     return (<Idea idea={idea} key={idea.id}/>)
                 }
             })}
           </div>
         );
-      }
+    }
+    resetNotification = () => {
+        this.setState({notification: ''})
+    }      
     addNewIdea = () => {
         axios.post(
             'http://localhost:3001/api/v1/ideas',
@@ -50,7 +59,8 @@ class IdeasContainer extends Component {
             this.setState(
                 {
                     ideas:ideas,
-                    editingIdeaId: response.data.id
+                    editingIdeaId: response.data.id,
+                    notification:''
                 }
             )
         })
@@ -69,7 +79,10 @@ class IdeasContainer extends Component {
         const ideas = update(this.state.ideas, {
           [ideaIndex]: { $set: idea }
         })
-        this.setState({ideas: ideas})
+        this.setState({
+            ideas: ideas,
+            notification: "All changes saved"
+        })
     }
 }
 
