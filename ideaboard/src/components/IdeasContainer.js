@@ -1,12 +1,15 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Idea from './Idea';
+import Idea from './Idea'
+import update from 'immutability-helper'
+import IdeaForm from './IdeaForm'
 
 class IdeasContainer extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            ideas: []
+            ideas: [],
+            editingIdeaId: null
         }
     }
       
@@ -20,7 +23,11 @@ class IdeasContainer extends Component {
                 </button>
             </div>
             {this.state.ideas.map((idea) => {
-              return (<Idea idea={idea} key={idea.id}/>)     
+                if(this.state.editingIdeaId === idea.id){
+                    return (<IdeaForm idea={idea} key={idea.id}/>)
+                }else{
+                    return (<Idea idea={idea} key={idea.id}/>)
+                }
             })}
           </div>
         );
@@ -29,14 +36,23 @@ class IdeasContainer extends Component {
         axios.post(
             'http://localhost:3001/api/v1/ideas',
             { idea:
-            {
-                title: '',
-                body: ''
-            }
+                {
+                    title: '',
+                    body: ''
+                }
             }
         )
         .then(response => {
             console.log(response)
+            const ideas = update(this.state.ideas,{
+                $splice:[[0,0,response.data]]
+            })
+            this.setState(
+                {
+                    ideas:ideas,
+                    editingIdeaId: response.data.id
+                }
+            )
         })
         .catch(error => console.log(error))
     }
