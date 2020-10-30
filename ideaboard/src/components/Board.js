@@ -2,6 +2,7 @@ import React,{useEffect, useState} from "react";
 
 function Board() {
   const canvasRef = React.useRef(null);
+  const parentRef = React.useRef(null);
   const [ctx,setCtx] = useState({});
   const [drawing, setDrawing] = useState(false);
   const [position,setPosition] = useState({x:0,y:0});
@@ -31,6 +32,8 @@ function Board() {
   }
   useEffect(() => {
       let canv = canvasRef.current;
+      canv.width = parentRef.current.offsetWidth;
+      canv.height = parentRef.current.offsetHeight;
 
       let canvCtx = canv.getContext("2d");
       canvCtx.lineJoin = "round";
@@ -39,11 +42,13 @@ function Board() {
       setCtx(canvCtx);
 
       let offset = canv.getBoundingClientRect();
-      setCanvasOffset({x:parseInt(offset.left),y:parseInt(offset.top)})
+      setCanvasOffset({
+          x:parseInt(offset.left),
+          y:parseInt(offset.top)})
   },[ctx])
   return (
-    <div className="board">
-      <canvas ref={canvasRef} 
+    <div className="board" ref={parentRef}>
+      <canvas
         ref={canvasRef}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
